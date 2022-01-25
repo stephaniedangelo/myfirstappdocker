@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+   web:
+     build: .
+     #image: "stephaniedangelo/myfirstapp:2.0"
+     networks:
+       labdocker:
+         ipv4_address: 172.20.0.2
+     ports:
+       - "80:80"
+     environment:
+       MESSAGE: "Mensagem alterada para o desafio"
+
+   redis:
+     image: redis
+     ports:
+        - "6379:6379"
+     volumes:
+        - "/srv/redis/data:/data"
+     command: "redis-server --appendonly yes"
+     networks:
+       labdocker:
+         ipv4_address: 172.20.0.3
+
+networks:
+   labdocker:
+     ipam:
+       config:
+         - subnet: 172.20.0.0/24
+volumes:
+   meuvolume:
+     driver: local
+     #name: nomedovolume

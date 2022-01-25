@@ -1,6 +1,10 @@
 # Importando o módulo do Flask e o módulo os 
 from flask import Flask
+from redis import Redis, RedisError
 import os
+
+# Connect to Redis
+redis = Redis(host="redis", db=0, socket_connect_timeout=2, socket_timeout=2)
 
 # Objeto da Classe Flask que vamos usar para configurar e executar a aplicação
 app = Flask(__name__)
@@ -10,8 +14,15 @@ app = Flask(__name__)
 
 # Função que tem como objetivo printar uma mensagem já em formato HTML na tela.
 def hello():
-    html = "<h3>{message}</h3>"
-    return html.format(message=os.getenv("MESSAGE", "Hello world"))
+    try:
+        visits = redis.incr("counter")
+    except RedisError:
+        visits = "<i>cannot connect to Redis, counter disabled</i>"
+
+    html = "<h3>{message}</h3>" \
+           "<b>Visits:</b> {visits}"
+    return html.format(message=os.environ['MESSAGE'], visits=visits)
+
 
 # Garantindo que o módulo não será executado se ele for importado por outro módulo.
 if __name__ == "__main__":
